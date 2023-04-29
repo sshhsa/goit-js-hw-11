@@ -1,6 +1,8 @@
+import Notiflix, { Notify } from 'notiflix';
+
 const form = document.getElementById('search-form');
-const input = document.querySelector('.js-input');
-const button = document.querySelector('.js-button');
+// const input = document.querySelector('.js-input');
+// const button = document.querySelector('.js-button');
 const listGallery = document.querySelector('.gallery');
 
 form.addEventListener('submit', onHandlerClickButton);
@@ -14,23 +16,38 @@ function onHandlerClickButton(event) {
     .then(data =>
       listGallery.insertAdjacentHTML(
         'afterend',
-        '<div class="container-button"><button class="load-more">LOAD MORE</button></div>'
+        '<div class="container-button"><button class="load-more">Load more</button></div>'
       )
     )
     .catch(error => console.log(error));
 }
 
+const BASE_URL = 'https://pixabay.com/api/';
+const API_KEY = '35838965-00a6ae99c457ac18fcac9dde6';
+
 function getGallery(q) {
-  const BASE_URL = 'https://pixabay.com/api/';
-  const API_KEY = '35838965-00a6ae99c457ac18fcac9dde6';
+  const params = new URLSearchParams({
+    limit: 20,
+    page: 1,
+  });
+
+  const options = {
+    method: 'GET',
+    headers: {
+      Authorization: API_KEY,
+    },
+  };
 
   return fetch(
-    `${BASE_URL}?key=${API_KEY}&q=${q}&image_type=photo&orientation=horizontal&safesearch=true`
+    `${BASE_URL}?key=${API_KEY}&q=${q}&image_type=photo&orientation=horizontal&safesearch=true${params}`,
+    options
   ).then(response => {
     if (!response.ok) {
-      throw new Error(response.statusText);
-      console.log(
-        'Sorry, there are no images matching your search query. Please try again.'
+      throw new Error(
+        Notiflix.Notify.warning(
+          'Sorry, there are no images matching your search query. Please try again.'
+        ),
+        response.statusText
       );
     }
     return response.json();
