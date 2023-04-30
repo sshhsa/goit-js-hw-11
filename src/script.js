@@ -23,26 +23,21 @@ function onInputValue() {
 
 loadMore.addEventListener('click', onClickButtonToLoad);
 
-function onClickButtonToLoad() {
+async function onClickButtonToLoad() {
   currentPage += 1;
-  getGallery(form.searchQuery.value, currentPage)
-    .then(data => {
-      listGallery.insertAdjacentHTML('beforeend', createMarkup(data.hits));
-      if (currentPage >= Math.ceil(data.totalHits / 20)) {
-        loadMore.hidden = true;
-        Notiflix.Notify.info(
-          "We're sorry, but you've reached the end of search results."
-        );
-      }
-    })
-    .catch(error => console.log(error));
+  try {
+    const data = await getGallery(form.searchQuery.value, currentPage);
+    listGallery.insertAdjacentHTML('beforeend', createMarkup(data.hits));
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // --------- FORM ---------
 
 form.addEventListener('submit', onHandlerClickButton);
 
-function onHandlerClickButton(event) {
+async function onHandlerClickButton(event) {
   event.preventDefault();
   const { searchQuery } = event.currentTarget.elements;
   currentPage = 1;
@@ -50,24 +45,29 @@ function onHandlerClickButton(event) {
   listGallery.innerHTML = '';
   loadMore.hidden = true;
 
-  getGallery(searchQuery.value, currentPage)
-    .then(data => {
-      if (data.hits.length === 0) {
-        Notiflix.Notify.warning(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-        return;
-      } else {
-        Notiflix.Notify.success('Success!');
-      }
+  try {
+    const data = await getGallery(searchQuery.value, currentPage);
+    if (data.hits.length === 0) {
+      Notiflix.Notify.warning(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+      return;
+    }
 
-      listGallery.innerHTML = createMarkup(data.hits);
+    listGallery.innerHTML = createMarkup(data.hits);
 
-      if (currentPage !== data.totalHits) {
-        loadMore.hidden = false;
-      }
-    })
-    .catch(error => console.log(error));
+    if (data.hits.length !== 40) {
+      loadMore.hidden = true;
+      Notiflix.Notify.info(
+        "We're sorry, but you've reached the end of search results."
+      );
+    } else {
+      loadMore.hidden = false;
+      Notiflix.Notify.success('Success!');
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // --------- BACKEND ---------
@@ -75,7 +75,7 @@ function onHandlerClickButton(event) {
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '35838965-00a6ae99c457ac18fcac9dde6';
 
-function getGallery(q, page = 1) {
+async function getGallery(q, page = 1) {
   const params = new URLSearchParams({
     q: q,
     page,
@@ -85,15 +85,17 @@ function getGallery(q, page = 1) {
     image_type: 'photo',
   });
 
-  return fetch(`${BASE_URL}?key=${API_KEY}&${params}`).then(response => {
-    if (!response.ok) {
-      Notiflix.Notify.warning(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-      throw new Error(response.statusText);
-    }
-    return response.json();
-  });
+  const response = await fetch(`${BASE_URL}?key=${API_KEY}&${params}`);
+
+  if (!response.ok) {
+    Notiflix.Notify.warning(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    throw new Error(response.statusText);
+  }
+
+  const data = await response.json();
+  return data;
 }
 
 // --------- A CREATING THE MARKUP ---------
