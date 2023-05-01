@@ -4,6 +4,7 @@ import Notiflix, { Notify } from 'notiflix';
 const form = document.getElementById('search-form');
 const listGallery = document.querySelector('.gallery');
 const loadMore = document.querySelector('.js-load');
+const buttonContainer = document.getElementById('container_button');
 const buttonSubmit = document.querySelector('.button-submit');
 const input = document.querySelector('.input-form');
 let currentPage = 1;
@@ -16,7 +17,8 @@ function onInputValue() {
   if (input.value.trim() !== '') {
     buttonSubmit.removeAttribute('disabled');
   } else {
-    buttonSubmit.setAttribute('disabled', true);
+    listGallery.innerHTML = '';
+    buttonContainer.innerHTML = '';
   }
 }
 
