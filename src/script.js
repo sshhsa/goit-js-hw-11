@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Notiflix, { Notify } from 'notiflix';
 
 const form = document.getElementById('search-form');
@@ -85,17 +86,27 @@ async function getGallery(q, page = 1) {
     image_type: 'photo',
   });
 
-  const response = await fetch(`${BASE_URL}?key=${API_KEY}&${params}`);
+  // const response = await fetch(`${BASE_URL}?key=${API_KEY}&${params}`);
 
-  if (!response.ok) {
+  // if (!response.ok) {
+  //   Notiflix.Notify.warning(
+  //     'Sorry, there are no images matching your search query. Please try again.'
+  //   );
+  //   throw new Error(response.statusText);
+  // }
+
+  // const data = await response.json();
+  // return data;
+
+  try {
+    const response = await axios.get(`${BASE_URL}?key=${API_KEY}&${params}`);
+    return response.data;
+  } catch (error) {
     Notiflix.Notify.warning(
       'Sorry, there are no images matching your search query. Please try again.'
     );
-    throw new Error(response.statusText);
+    throw new Error(error.response.statusText);
   }
-
-  const data = await response.json();
-  return data;
 }
 
 // --------- A CREATING THE MARKUP ---------
