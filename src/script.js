@@ -16,9 +16,12 @@ input.addEventListener('input', onInputValue);
 function onInputValue() {
   if (input.value.trim() !== '') {
     buttonSubmit.removeAttribute('disabled');
-  } else {
+  }
+
+  if (input.value.trim() === '') {
     listGallery.innerHTML = '';
-    buttonContainer.innerHTML = '';
+    buttonSubmit.setAttribute('disabled', true);
+    buttonContainer.style.display = 'none';
   }
 }
 
@@ -66,7 +69,7 @@ async function onHandlerClickButton(event) {
       );
     } else {
       loadMore.hidden = false;
-      Notiflix.Notify.success('Success!');
+      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
     }
   } catch (error) {
     console.log(error);
