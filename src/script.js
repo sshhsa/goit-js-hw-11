@@ -34,6 +34,17 @@ async function onClickButtonToLoad() {
   try {
     const data = await getGallery(form.searchQuery.value, currentPage);
     listGallery.insertAdjacentHTML('beforeend', createMarkup(data.hits));
+
+    // --------- SMOOTH SCROLL ---------
+    const { height: cardHeight } = document
+      .querySelector('.gallery')
+      .firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+    // --------- SMOOTH SCROLL ---------
   } catch (error) {
     console.log(error);
   }
