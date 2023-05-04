@@ -1,8 +1,10 @@
 import axios from 'axios';
 import Notiflix, { Notify } from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const form = document.getElementById('search-form');
-const listGallery = document.querySelector('.gallery');
+const listGallery = document.querySelector('.gallery-list');
 const loadMore = document.querySelector('.js-load');
 const buttonContainer = document.getElementById('container_button');
 const buttonSubmit = document.querySelector('.button-submit');
@@ -28,6 +30,7 @@ function onInputValue() {
 // --------- BUTTON LOAD MORE ---------
 
 loadMore.addEventListener('click', onClickButtonToLoad);
+let lightbox = null;
 
 async function onClickButtonToLoad() {
   currentPage += 1;
@@ -35,16 +38,21 @@ async function onClickButtonToLoad() {
     const data = await getGallery(form.searchQuery.value, currentPage);
     listGallery.insertAdjacentHTML('beforeend', createMarkup(data.hits));
 
+    if (!lightbox) {
+      lightbox = new SimpleLightbox('.gallery a', { scrollbar: true });
+    } else {
+      lightbox.refresh();
+    }
+
     // --------- SMOOTH SCROLL ---------
     const { height: cardHeight } = document
-      .querySelector('.gallery')
+      .querySelector('.gallery-list')
       .firstElementChild.getBoundingClientRect();
 
     window.scrollBy({
       top: cardHeight * 2,
       behavior: 'smooth',
     });
-    // --------- SMOOTH SCROLL ---------
   } catch (error) {
     console.log(error);
   }
@@ -83,7 +91,10 @@ async function onHandlerClickButton(event) {
       Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
     }
   } catch (error) {
-    console.log(error);
+    Notiflix.Notify.warning(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    throw new Error(error.response.statusText);
   }
 }
 
@@ -101,18 +112,6 @@ async function getGallery(q, page = 1) {
     orientation: 'horizontal',
     image_type: 'photo',
   });
-
-  // const response = await fetch(`${BASE_URL}?key=${API_KEY}&${params}`);
-
-  // if (!response.ok) {
-  //   Notiflix.Notify.warning(
-  //     'Sorry, there are no images matching your search query. Please try again.'
-  //   );
-  //   throw new Error(response.statusText);
-  // }
-
-  // const data = await response.json();
-  // return data;
 
   try {
     const response = await axios.get(`${BASE_URL}?key=${API_KEY}&${params}`);
@@ -133,20 +132,25 @@ function createMarkup(array) {
       ({
         tags,
         webformatURL,
+        largeImageURL,
         views,
         downloads,
         likes,
         comments,
-      }) => `<div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="200" class="card-photo"/>
-  <div class="info">
-    <p class="info-item"><b>Likes</b>${likes}</p>
-    <p class="info-item"><b>Views</b>${views}</p>
-    <p class="info-item"><b>Comments</b>${comments}</p>
-    <p class="info-item"><b>Downloads</b>${downloads}</p>
-  </div>
-</div>
-`
+      }) =>
+        `
+          <div class="gallery">
+            <a href="${largeImageURL}" class="gallery-link">
+              <img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="200" class="card-photo"/>
+              <div class="info">
+                <p class="info-item"><b>Likes</b>${likes}</p>
+                <p class="info-item"><b>Views</b>${views}</p>
+                <p class="info-item"><b>Comments</b>${comments}</p>
+                <p class="info-item"><b>Downloads</b>${downloads}</p>
+              </div>
+            </a>
+          </div>
+        `
     )
     .join('');
 }
