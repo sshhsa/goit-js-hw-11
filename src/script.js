@@ -39,7 +39,7 @@ async function onClickButtonToLoad() {
     listGallery.insertAdjacentHTML('beforeend', createMarkup(data.hits));
 
     if (!lightbox) {
-      lightbox = new SimpleLightbox('.gallery a', { scrollbar: true });
+      lightbox = new SimpleLightbox('.gallery-list a', { scrollbar: true });
     } else {
       lightbox.refresh();
     }
@@ -57,6 +57,12 @@ async function onClickButtonToLoad() {
     console.log(error);
   }
 }
+
+// --------- SIMPLELIGHTBOX ---------
+
+// window.addEventListener('load', () => {
+//   lightbox = new SimpleLightbox('.gallery-list a', { scrollbar: true });
+// });
 
 // --------- FORM ---------
 
@@ -80,6 +86,10 @@ async function onHandlerClickButton(event) {
     }
 
     listGallery.innerHTML = createMarkup(data.hits);
+
+    window.addEventListener('load', () => {
+      lightbox = new SimpleLightbox('.gallery-list a', { scrollbar: true });
+    });
 
     if (data.hits.length !== 40) {
       loadMore.hidden = true;
