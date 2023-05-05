@@ -60,9 +60,9 @@ async function onClickButtonToLoad() {
 
 // --------- FORM ---------
 
-form.addEventListener('submit', onHandlerClickButton);
+form.addEventListener('submit', onClickButtonSearch);
 
-async function onHandlerClickButton(event) {
+async function onClickButtonSearch(event) {
   event.preventDefault();
   const { searchQuery } = event.currentTarget.elements;
   currentPage = 1;
@@ -84,7 +84,9 @@ async function onHandlerClickButton(event) {
     if (lightbox) {
       lightbox.refresh();
     } else {
-      lightbox = new SimpleLightbox('.gallery-list a', { scrollbar: true });
+      lightbox = new SimpleLightbox('.gallery-list a', {
+        scrollbar: true,
+      });
     }
 
     if (data.hits.length !== 40) {
