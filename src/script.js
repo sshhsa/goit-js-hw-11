@@ -38,10 +38,10 @@ async function onClickButtonToLoad() {
     const data = await getGallery(form.searchQuery.value, currentPage);
     listGallery.insertAdjacentHTML('beforeend', createMarkup(data.hits));
 
-    if (!lightbox) {
-      lightbox = new SimpleLightbox('.gallery-list a', { scrollbar: true });
-    } else {
+    if (lightbox) {
       lightbox.refresh();
+    } else {
+      lightbox = new SimpleLightbox('.gallery-list a', { scrollbar: true });
     }
 
     // --------- SMOOTH SCROLL ---------
@@ -57,12 +57,6 @@ async function onClickButtonToLoad() {
     console.log(error);
   }
 }
-
-// --------- SIMPLELIGHTBOX ---------
-
-// window.addEventListener('load', () => {
-//   lightbox = new SimpleLightbox('.gallery-list a', { scrollbar: true });
-// });
 
 // --------- FORM ---------
 
@@ -87,9 +81,11 @@ async function onHandlerClickButton(event) {
 
     listGallery.innerHTML = createMarkup(data.hits);
 
-    window.addEventListener('load', () => {
+    if (lightbox) {
+      lightbox.refresh();
+    } else {
       lightbox = new SimpleLightbox('.gallery-list a', { scrollbar: true });
-    });
+    }
 
     if (data.hits.length !== 40) {
       loadMore.hidden = true;
